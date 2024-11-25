@@ -8,106 +8,64 @@ sns.set(style='darkgrid')
 day_df = pd.read_csv("all_data.csv")
 day_df.head()
 
+# Preprocessing data
 drop_col = ['instant', 'temp', 'atemp', 'hum', 'windspeed']
 day_df.drop(columns=drop_col, inplace=True)
 
-day_df['yr'] = day_df['yr'].map({
-    0: '2011',
-    1: '2012'
-})
-day_df['mnth'] = day_df['mnth'].map({
-    1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'Mei', 6: 'Jun', 
-})
-day_df['season'] = day_df['season'].map({
-    1: 'Musim Semi', 2: 'Musim Panas', 3: 'Musim Gugur', 4: 'Musim Dingin'
-})
-day_df['weekday'] = day_df['weekday'].map({
-    0: 'Minggu', 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu'
-})
-day_df['weathersit'] = day_df['weathersit'].map({
-    1: 'Cerah',
-    2: 'Berawan',
-    3: 'Hujan/Salju Ringan',
-    4: 'Cuaca Buruk'
-})
+day_df['yr'] = day_df['yr'].map({0: '2011', 1: '2012'})
+day_df['mnth'] = day_df['mnth'].map({1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'Mei', 6: 'Jun'})
+day_df['season'] = day_df['season'].map({1: 'Musim Semi', 2: 'Musim Panas', 3: 'Musim Gugur', 4: 'Musim Dingin'})
+day_df['weekday'] = day_df['weekday'].map({0: 'Minggu', 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu'})
+day_df['weathersit'] = day_df['weathersit'].map({1: 'Cerah', 2: 'Berawan', 3: 'Hujan/Salju Ringan', 4: 'Cuaca Buruk'})
 day_df['dteday'] = pd.to_datetime(day_df['dteday'])
-day_df[['season', 'yr', 'mnth', 'holiday', 'weekday', 'workingday', 'weathersit']] = day_df[[
-    'season', 'yr', 'mnth', 'holiday', 'weekday', 'workingday', 'weathersit']].astype('category')
+day_df[['season', 'yr', 'mnth', 'holiday', 'weekday', 'workingday', 'weathersit']] = day_df[['season', 'yr', 'mnth', 'holiday', 'weekday', 'workingday', 'weathersit']].astype('category')
 
+# Filter data for the months Jan to Jun
 day_df = day_df[day_df['mnth'].isin(['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'])]
 
-def create_season_rent_df(df):
-    season_rent_df = df.groupby(by='season')[['registered', 'casual']].sum().reset_index()
-    return season_rent_df
-
+# Function to create monthly rent DataFrame
 def create_monthly_rent_df(df):
-    monthly_rent_df = df.groupby(by='mnth').agg({
-        'cnt': 'sum'
-    }).reset_index()
+    monthly_rent_df = df.groupby(by='mnth').agg({'cnt': 'sum'}).reset_index()
     ordered_months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun']
     monthly_rent_df['mnth'] = pd.Categorical(monthly_rent_df['mnth'], categories=ordered_months, ordered=True)
     return monthly_rent_df
 
-def create_weather_rent_df(df):
-    weather_rent_df = df.groupby(by='weathersit').agg({
-        'cnt': 'sum'
-    }).reset_index()
-    return weather_rent_df
+# Function to create season and weather DataFrame
+def create_season_weather_df(df):
+    season_weather_df = df.groupby(['season', 'weathersit']).agg({'cnt': 'mean'}).reset_index()
+    return season_weather_df
 
-min_date = day_df['dteday'].min().date()
-max_date = day_df['dteday'].max().date()
-
-with st.sidebar:
-    
-    
-    start_date, end_date = st.date_input(
-        label='Rentang Waktu',
-        min_value=min_date,
-        max_value=max_date,
-        value=[min_date, max_date]
-    )
-
-main_df = day_df[(day_df['dteday'] >= pd.to_datetime(start_date)) & 
-                (day_df['dteday'] <= pd.to_datetime(end_date))]
-
-season_rent_df = create_season_rent_df(main_df)
-monthly_rent_df = create_monthly_rent_df(main_df)
-weather_rent_df = create_weather_rent_df(main_df)
-
+# Streamlit app
 st.header('DATA ANALIST PENGGUNAAN SEPEDA SELAMA 6 BULAN')
 
-st.subheader('Jumlah Pengguna dalam 6 Bulan')
-fig, ax = plt.subplots(figsize=(24, 8))
-ax.plot(
-    monthly_rent_df['mnth'],
-    monthly_rent_df['cnt'],
-    marker='o', 
-    linewidth=2,
-    color='tab:green'
-)
+# Monthly counts
+monthly_rent_df = create_monthly_rent_df(day_df)
 
-for index, row in monthly_rent_df.iterrows():
-    ax.text(index, row['cnt'] + 1, str(row['cnt']), ha='center', va='bottom', fontsize=12)
-
-ax.tick_params(axis='x', labelsize=25, rotation=45)
-ax.tick_params(axis='y', labelsize=20)
-st.pyplot(fig)
-
-st.subheader('Data Hubungan Cuaca dengan Musim')
-fig, ax = plt.subplots(figsize=(10,6))
-sns.barplot(x='mnth',
-            y='cnt',
-            data=day_df.groupby('mnth', observed=False)['cnt'].sum().reset_index(),
-            ax=ax)
-ax.set_title('Jumlah Pengguna Sepeda per Bulan (Jan-Jun)')
+st.subheader('Jumlah Total Penyewa Sepeda per Bulan')
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.barplot(data=monthly_rent_df, x='mnth', y='cnt', ax=ax)
+ax.set_title('Jumlah Total Penyewa Sepeda Tahun 2011')
 ax.set_xlabel('Bulan')
-ax.set_ylabel('Jumlah Pengguna Sepeda')
+ax.set_ylabel('Jumlah Penyewa')
+ax.grid(axis='y')
 st.pyplot(fig)
 
-st.subheader('Heatmap Korelasi Data')
-numerical_df = day_df.select_dtypes(include=['number'])
-corr_matrix = numerical_df.corr()
-fig, ax = plt.subplots(figsize=(10,8))
-sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', square=True, ax=ax)
-ax.set_title('Heatmap Korelasi Antar Variabel')
+# Find month with highest users
+max_users = monthly_rent_df.loc[monthly_rent_df['cnt'].idxmax()]
+st.write(f"Jumlah pengguna tertinggi terjadi pada bulan {max_users['mnth']} "
+         f"dengan total {max_users['cnt']} penyewa sepeda.")
+
+# Season and weather analysis
+season_weather_df = create_season_weather_df(day_df)
+
+st.subheader('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
+fig, ax = plt.subplots(figsize=(12, 6))
+sns.barplot(data=season_weather_df, x='weathersit', y='cnt', hue='season', palette='Set2', ax=ax)
+ax.set_title('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
+ax.set_xlabel('Kondisi Cuaca')
+ax.set_ylabel('Rata-Rata Jumlah Pengguna Sepeda')
+ax.legend(title='Musim', loc='upper right')
 st.pyplot(fig)
+
+# Find max usage combination
+max_usage = season_weather_df.loc[season_weather_df['cnt'].idxmax
