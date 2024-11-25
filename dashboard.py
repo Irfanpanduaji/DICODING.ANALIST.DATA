@@ -68,4 +68,4 @@ ax.legend(title='Musim', loc='upper right')
 st.pyplot(fig)
 
 # Find max usage combination
-max_usage = season_weather_df.loc[season_weather_df['cnt'].idxmax
+max_usage = season_weather_df.loc[season_weather
