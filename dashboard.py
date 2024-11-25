@@ -24,17 +24,6 @@ day_df[['season', 'yr', 'mnth', 'holiday', 'weekday', 'workingday', 'weathersit'
 # Filter data for the months Jan to Jun
 day_df = day_df[day_df['mnth'].isin(['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'])]
 
-# Streamlit app
-st.header('DATA ANALIST PENGGUNAAN SEPEDA SELAMA 6 BULAN')
-
-# Sidebar for date selection
-st.sidebar.header('Pilih Rentang Tanggal')
-start_date = st.sidebar.date_input("Tanggal Mulai", day_df['dteday'].min())
-end_date = st.sidebar.date_input("Tanggal Akhir", day_df['dteday'].max())
-
-# Filter the main DataFrame based on selected dates
-filtered_df = day_df[(day_df['dteday'] >= pd.to_datetime(start_date)) & (day_df['dteday'] <= pd.to_datetime(end_date))]
-
 # Function to create monthly rent DataFrame
 def create_monthly_rent_df(df):
     monthly_rent_df = df.groupby(by='mnth').agg({'cnt': 'sum'}).reset_index()
@@ -47,8 +36,11 @@ def create_season_weather_df(df):
     season_weather_df = df.groupby(['season', 'weathersit']).agg({'cnt': 'mean'}).reset_index()
     return season_weather_df
 
+# Streamlit app
+st.header('DATA ANALIST PENGGUNAAN SEPEDA SELAMA 6 BULAN')
+
 # Monthly counts
-monthly_rent_df = create_monthly_rent_df(filtered_df)
+monthly_rent_df = create_monthly_rent_df(day_df)
 
 st.subheader('Jumlah Total Penyewa Sepeda per Bulan')
 fig, ax = plt.subplots(figsize=(10, 6))
@@ -65,8 +57,16 @@ st.write(f"Jumlah pengguna tertinggi terjadi pada bulan {max_users['mnth']} "
          f"dengan total {max_users['cnt']} penyewa sepeda.")
 
 # Season and weather analysis
-season_weather_df = create_season_weather_df(filtered_df)
+season_weather_df = create_season_weather_df(day_df)
 
 st.subheader('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
 fig, ax = plt.subplots(figsize=(12, 6))
-sns.bar
+sns.barplot(data=season_weather_df, x='weathersit', y='cnt', hue='season', palette='Set2', ax=ax)
+ax.set_title('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
+ax.set_xlabel('Kondisi Cuaca')
+ax.set_ylabel('Rata-Rata Jumlah Pengguna Sepeda')
+ax.legend(title='Musim', loc='upper right')
+st.pyplot(fig)
+
+# Find max usage combination
+max_usage = season_weather_df.loc
