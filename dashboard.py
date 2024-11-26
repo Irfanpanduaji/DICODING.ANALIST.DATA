@@ -70,6 +70,19 @@ st.write(f"Jumlah pengguna tertinggi terjadi pada bulan {max_users['mnth']} "
 season_weather_df = create_season_weather_df(day_df)
 
 st.subheader('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
-fig, ax = plt.subplots(figsize=(12, 6))
-sns.barplot(data=season_weather_df, x='weathersit', y='cnt', hue='season', palette='Set2', ax=ax)
-ax.set_title('Rata')
+fig2, ax2 = plt.subplots(figsize=(12, 6))
+sns.barplot(data=season_weather_df)
+
+    x='weathersit', y='cnt', hue='season', palette='Set2', ax=ax2)
+ax2.set_title('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
+ax2.set_xlabel('Kondisi Cuaca')
+ax2.set_ylabel('Rata-Rata Jumlah Pengguna Sepeda')
+ax2.legend(title='Musim', loc='upper right')
+st.pyplot(fig2)
+
+# Optional: Find max usage combination in season and weather
+max_usage = season_weather_df.loc[season_weather_df['cnt'].idxmax()]
+st.write(f"Rata-rata pengguna tertinggi terjadi pada kondisi cuaca '{max_usage['weathersit']}' "
+         f"pada musim '{max_usage['season']}' dengan rata-rata {max_usage['cnt']:.2f} pengguna.")
+
+# End of Streamlit app
