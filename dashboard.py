@@ -4,11 +4,11 @@ import seaborn as sns
 import streamlit as st
 import datetime
 
+# Set style for seaborn
 sns.set(style='darkgrid')
 
 # Load data
 day_df = pd.read_csv("all_data.csv")
-day_df.head()
 
 # Preprocessing data
 drop_col = ['instant', 'temp', 'atemp', 'hum', 'windspeed']
@@ -34,6 +34,7 @@ def create_season_weather_df(df):
     season_weather_df = df.groupby(['season', 'weathersit']).agg({'cnt': 'mean'}).reset_index()
     return season_weather_df
 
+# Streamlit app
 st.header('DATA ANALIST PENGGUNAAN SEPEDA SELAMA 6 BULAN')
 
 # Input for date range filtering
@@ -64,30 +65,9 @@ with col2:
     selected_date = st.date_input("Tanggal", datetime.date.today())
     st.write(f"Tanggal yang dipilih: {selected_date}")
 
-    # Find month with highest users
-    if not monthly_rent_df.empty:
-        max_users = monthly_rent_df.loc[monthly_rent_df['cnt'].idxmax()]
-        st.write(f"Jumlah pengguna tertinggi terjadi pada bulan {max_users['mnth']} "
-                 f"dengan total {max_users['cnt']} penyewa sepeda.")
-    else:
-        st.write("Tidak ada data untuk rentang tanggal yang dipilih.")
-
-# Season and weather analysis based on filtered data
-season_weather_df = create_season_weather_df(filtered_day_df)
-
-st.subheader('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
-fig2, ax2 = plt.subplots(figsize=(12, 6))
-
-if not season_weather_df.empty:
-    sns.barplot(data=season_weather_df, x='weathersit', y='cnt', hue='season', palette='Set2', ax=ax2)
-    ax2.set_title('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
-    ax2.set_xlabel('Kondisi Cuaca')
-    ax2.set_ylabel('Rata-Rata Jumlah Pengguna Sepeda')
-    ax2.legend(title='Musim', loc='upper right')
-    st.pyplot(fig2)
-
-    max_usage = season_weather_df.loc[season_weather_df['cnt'].idxmax()]
-    st.write(f"Rata-rata pengguna tertinggi terjadi pada kondisi cuaca '{max_usage['weathersit']}' "
-             f"pada musim '{max_usage['season']}' dengan rata-rata {max_usage['cnt']:.2f} pengguna.")
-else:
-    st.write("Tidak ada data untuk rentang tanggal yang dipilih.")
+# Find month with highest users
+if not monthly_rent_df.empty:
+    max_users = monthly_rent_df.loc[monthly_rent_df['cnt'].idxmax()]
+    st.write(f"Jumlah pengguna tertinggi terjadi pada bulan {max_users['mnth']} "
+        else:
+    st.write("Tidak ada data untuk ditampilkan.")
