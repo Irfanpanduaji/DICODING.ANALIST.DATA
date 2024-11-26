@@ -72,7 +72,6 @@ season_weather_df = create_season_weather_df(day_df)
 st.subheader('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
 fig2, ax2 = plt.subplots(figsize=(12, 6))
 
-# Memperbaiki baris ini
 sns.barplot(data=season_weather_df, x='weathersit', y='cnt', hue='season', palette='Set2', ax=ax2)
 
 ax2.set_title('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
