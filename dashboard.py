@@ -37,7 +37,6 @@ def create_season_weather_df(df):
     season_weather_df = df.groupby(['season', 'weathersit']).agg({'cnt': 'mean'}).reset_index()
     return season_weather_df
 
-# Streamlit app
 st.header('DATA ANALIST PENGGUNAAN SEPEDA SELAMA 6 BULAN')
 
 # Monthly counts
@@ -80,9 +79,6 @@ ax2.set_ylabel('Rata-Rata Jumlah Pengguna Sepeda')
 ax2.legend(title='Musim', loc='upper right')
 st.pyplot(fig2)
 
-# Optional: Find max usage combination in season and weather
 max_usage = season_weather_df.loc[season_weather_df['cnt'].idxmax()]
 st.write(f"Rata-rata pengguna tertinggi terjadi pada kondisi cuaca '{max_usage['weathersit']}' "
          f"pada musim '{max_usage['season']}' dengan rata-rata {max_usage['cnt']:.2f} pengguna.")
-
-# End of Streamlit app
