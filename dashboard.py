@@ -69,5 +69,5 @@ ax.set_ylabel('Rata-Rata Jumlah Pengguna Sepeda')
 ax.legend(title='Musim', loc='upper right')
 st.pyplot(fig)
 
-# Find max usage combination
-max_usage = season_weather_df.loc
+# Calendar feature
+st.subheader ('Pilih')
