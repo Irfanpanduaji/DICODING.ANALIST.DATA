@@ -43,14 +43,23 @@ st.header('DATA ANALIST PENGGUNAAN SEPEDA SELAMA 6 BULAN')
 # Monthly counts
 monthly_rent_df = create_monthly_rent_df(day_df)
 
-st.subheader('Jumlah Total Penyewa Sepeda per Bulan')
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.barplot(data=monthly_rent_df, x='mnth', y='cnt', ax=ax)
-ax.set_title('Jumlah Total Penyewa Sepeda Tahun 2011')
-ax.set_xlabel('Bulan')
-ax.set_ylabel('Jumlah Penyewa')
-ax.grid(axis='y')
-st.pyplot(fig)
+# Create two columns for layout
+col1, col2 = st.columns([2, 1])  # Adjust the ratio as needed
+
+with col1:
+    st.subheader('Jumlah Total Penyewa Sepeda per Bulan')
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(data=monthly_rent_df, x='mnth', y='cnt', ax=ax)
+    ax.set_title('Jumlah Total Penyewa Sepeda Tahun 2011')
+    ax.set_xlabel('Bulan')
+    ax.set_ylabel('Jumlah Penyewa')
+    ax.grid(axis='y')
+    st.pyplot(fig)
+
+with col2:
+    st.subheader('Pilih Tanggal')
+    selected_date = st.date_input("Tanggal", datetime.date.today())
+    st.write(f"Tanggal yang dipilih: {selected_date}")
 
 # Find month with highest users
 max_users = monthly_rent_df.loc[monthly_rent_df['cnt'].idxmax()]
@@ -63,11 +72,4 @@ season_weather_df = create_season_weather_df(day_df)
 st.subheader('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
 fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(data=season_weather_df, x='weathersit', y='cnt', hue='season', palette='Set2', ax=ax)
-ax.set_title('Rata-Rata Jumlah Pengguna Sepeda Berdasarkan Kondisi Cuaca dan Musim')
-ax.set_xlabel('Kondisi Cuaca')
-ax.set_ylabel('Rata-Rata Jumlah Pengguna Sepeda')
-ax.legend(title='Musim', loc='upper right')
-st.pyplot(fig)
-
-# Calendar feature
-st.subheader ('Pilih')
+ax.set_title('Rata
